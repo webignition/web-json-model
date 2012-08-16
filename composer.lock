@@ -1,0 +1,29 @@
+{
+    "hash": "50f8fd8508a05178ce2d75d38715dcbb",
+    "packages": [
+        {
+            "package": "webignition/internet-media-type",
+            "version": "0.3"
+        },
+        {
+            "package": "webignition/quoted-string",
+            "version": "0.2"
+        },
+        {
+            "package": "webignition/string-parser",
+            "version": "0.1"
+        },
+        {
+            "package": "webignition/web-resource-model",
+            "version": "0.3"
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": [
+
+    ]
+}
