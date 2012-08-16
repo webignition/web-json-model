@@ -18,5 +18,13 @@ class JsonDocument extends WebResource
             $mediaTypeParser = new InternetMediaTypeParser();
             $this->addValidContentType($mediaTypeParser->parse($validContentTypeString));
         }
-    }      
+    }
+    
+    /**
+     *
+     * @return stdClass
+     */
+    public function getContentObject() {
+        return json_decode($this->getContent());
+    }
 }
