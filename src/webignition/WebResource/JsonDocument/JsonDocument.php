@@ -24,7 +24,7 @@ class JsonDocument extends WebResource
      *
      * @return stdClass
      */
-    public function getContentObject() {
-        return json_decode($this->getContent());
+    public function getContentObject() {        
+        return json_decode($this->getHttpResponse()->getBody(true));
     }
 }
