@@ -22,9 +22,8 @@
         "webignition/web-resource-model":">=1.1.1,<2.0"
     },
     "require-dev": {
-        "symfony/class-loader": "*",
-        "phpunit/phpunit": "3.7.*",
-        "guzzle/guzzle":">=3.8.1,<4"
+        "phpunit/phpunit": "~4.0",
+        "guzzlehttp/guzzle":">=5.2.0,<5.3"
     },     
     "minimum-stability":"dev",
     "prefer-stable":true
