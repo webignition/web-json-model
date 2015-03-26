@@ -22,9 +22,26 @@ class JsonDocument extends WebResource
     
     /**
      *
-     * @return stdClass
+     * @return \stdClass
      */
-    public function getContentObject() {        
-        return json_decode($this->getContent());
+    public function getContentObject() {
+        return $this->getDecodedContent();
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getContentArray() {
+        return $this->getDecodedContent(true);
+    }
+
+
+    /**
+     * @param bool $asArray
+     * @return array|\stdClass
+     */
+    private function getDecodedContent($asArray = false) {
+        return json_decode($this->getContent(), $asArray);
     }
 }
