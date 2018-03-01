@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6559c835ad118ef72b0d0898c8d3310e",
+    "content-hash": "0a8d76d2968cf0621696c3ef5e4ee335",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -75,33 +75,28 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "5.2.0",
+            "version": "5.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "475b29ccd411f2fa8a408e64576418728c032cfa"
+                "reference": "f9acb4761844317e626a32259205bec1f1bc60d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/475b29ccd411f2fa8a408e64576418728c032cfa",
-                "reference": "475b29ccd411f2fa8a408e64576418728c032cfa",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/f9acb4761844317e626a32259205bec1f1bc60d2",
+                "reference": "f9acb4761844317e626a32259205bec1f1bc60d2",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/ringphp": "~1.0",
-                "php": ">=5.4.0"
+                "guzzlehttp/ringphp": "^1.1",
+                "php": ">=5.4.0",
+                "react/promise": "^2.2"
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "~4.0",
-                "psr/log": "~1.0"
+                "phpunit/phpunit": "^4.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.0-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "GuzzleHttp\\": "src/"
@@ -129,7 +124,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2015-01-28T01:03:29+00:00"
+            "time": "2018-01-15T07:18:01+00:00"
         },
         {
             "name": "guzzlehttp/ringphp",
@@ -465,7 +460,7 @@
         },
         {
             "name": "webignition/web-resource-model",
-            "version": "dev-master",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-model.git",
@@ -479,13 +474,13 @@
             },
             "require": {
                 "doctrine/collections": "~1.0",
-                "guzzlehttp/guzzle": ">=5.2.0,<5.3",
-                "php": ">=5.4.0",
+                "guzzlehttp/guzzle": "~5",
+                "php": ">=5.6.0",
                 "webignition/internet-media-type": ">=0.4.7,<2.0"
             },
             "require-dev": {
                 "mockery/mockery": "0.9.*",
-                "phpunit/phpunit": "~4.0",
+                "phpunit/phpunit": "~5.0",
                 "squizlabs/php_codesniffer": "3.*"
             },
             "type": "library",
@@ -495,7 +490,18 @@
                     "webignition\\Tests\\WebResource\\": "tests/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "./vendor/bin/phpunit --colors=always"
+                ],
+                "cs": [
+                    "./vendor/bin/phpcs src tests --colors --standard=PSR2"
+                ],
+                "ci": [
+                    "@composer cs",
+                    "@composer test"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -511,6 +517,10 @@
                 "modem",
                 "web"
             ],
+            "support": {
+                "source": "https://github.com/webignition/web-resource-model/tree/1.3.1",
+                "issues": "https://github.com/webignition/web-resource-model/issues"
+            },
             "time": "2018-03-01T16:50:26+00:00"
         }
     ],
@@ -1998,9 +2008,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "webignition/web-resource-model": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
