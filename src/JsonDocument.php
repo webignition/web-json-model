@@ -14,11 +14,11 @@ class JsonDocument extends WebResource
 
     /**
      * @param ResponseInterface $response
-     * @param string $url
+     * @param string|null $url
      *
      * @throws InvalidContentTypeException
      */
-    public function __construct(ResponseInterface $response, $url)
+    public function __construct(ResponseInterface $response, $url = null)
     {
         parent::__construct($response, $url);
 

@@ -24,7 +24,7 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
         $expectedExceptionContentType
     ) {
         try {
-            new JsonDocument($response, 'http://example.com');
+            new JsonDocument($response);
             $this->fail(InvalidContentTypeException::class. 'not thrown');
         } catch (InvalidContentTypeException $invalidContentTypeException) {
             $this->assertEquals(InvalidContentTypeException::CODE, $invalidContentTypeException->getCode());
@@ -62,7 +62,7 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreate(ResponseInterface $response, $expectedData)
     {
-        $jsonDocument = new JsonDocument($response, 'http://example.com');
+        $jsonDocument = new JsonDocument($response);
 
         $this->assertEquals($expectedData, $jsonDocument->getData());
     }
@@ -143,6 +143,7 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $contentType
      *
+     * @param string|null $content
      * @return ResponseInterface|Mock
      */
     private function createResponse($contentType, $content = null)
