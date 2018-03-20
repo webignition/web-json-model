@@ -1,49 +1,45 @@
 <?php
+
 namespace webignition\WebResource\JsonDocument;
 
+use Psr\Http\Message\ResponseInterface;
 use webignition\WebResource\WebResource;
-use webignition\InternetMediaType\Parser\Parser as InternetMediaTypeParser;
 
-/**
- *
- */
 class JsonDocument extends WebResource
 {
-    public function __construct()
-    {
-        $validContentTypes = array(
-            'application/json'
-        );
+    const APPLICATION_JSON_CONTENT_TYPE = 'application/json';
+    const TEXT_JAVASCRIPT_CONTENT_TYPE = 'text/javascript';
+    const APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN = '/application\/[a-z]+\+json/';
+    const TEXT_JSON_CONTENT_TYPE = 'text/json';
 
-        foreach ($validContentTypes as $validContentTypeString) {
-            $mediaTypeParser = new InternetMediaTypeParser();
-            $this->addValidContentType($mediaTypeParser->parse($validContentTypeString));
+    /**
+     * @param ResponseInterface $response
+     * @param string $url
+     *
+     * @throws InvalidContentTypeException
+     */
+    public function __construct(ResponseInterface $response, $url)
+    {
+        parent::__construct($response, $url);
+
+        $contentType = $this->getContentType();
+        $contentTypeSubtypeString = $contentType->getTypeSubtypeString();
+
+        $hasApplicationJsonContentType = self::APPLICATION_JSON_CONTENT_TYPE === $contentTypeSubtypeString;
+        $hasTextJavascriptContentType = self::TEXT_JAVASCRIPT_CONTENT_TYPE === $contentTypeSubtypeString;
+
+        if (!$hasApplicationJsonContentType && !$hasTextJavascriptContentType) {
+            if (0 === preg_match(self::APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN, $contentTypeSubtypeString)) {
+                throw new InvalidContentTypeException($contentType);
+            }
         }
     }
 
     /**
-     * @return \stdClass
+     * @return null|bool|string|int|array
      */
-    public function getContentObject()
+    public function getData()
     {
-        return $this->getDecodedContent();
-    }
-
-    /**
-     * @return array
-     */
-    public function getContentArray()
-    {
-        return $this->getDecodedContent(true);
-    }
-
-    /**
-     * @param bool $asArray
-     *
-     * @return array|\stdClass
-     */
-    private function getDecodedContent($asArray = false)
-    {
-        return json_decode($this->getContent(), $asArray);
+        return json_decode($this->getContent(), true);
     }
 }

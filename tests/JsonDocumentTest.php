@@ -2,146 +2,172 @@
 
 namespace webignition\Tests\WebResource\JsonDocument;
 
-use GuzzleHttp\Message\ResponseInterface;
-use Mockery\MockInterface;
-use PHPUnit_Framework_TestCase;
-use webignition\WebResource\Exception;
+use Mockery\Mock;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use webignition\WebResource\JsonDocument\InvalidContentTypeException;
 use webignition\WebResource\JsonDocument\JsonDocument;
+use webignition\WebResource\WebResource;
 
-class JsonDocumentTest extends PHPUnit_Framework_TestCase
+class JsonDocumentTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var JsonDocument
-     */
-    private $jsonDocument;
-
-    /**
-     * @inheritdoc
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->jsonDocument = new JsonDocument();
-    }
-
-    /**
-     * @dataProvider getContentArrayDataProvider
+     * @dataProvider createInvalidContentTypeDataProvider
      *
-     * @param ResponseInterface $httpResponse
-     * @param array $expectedArrayContent
+     * @param ResponseInterface $response
+     * @param string $expectedExceptionMessage
+     * @param string $expectedExceptionContentType
      */
-    public function testGetContentArray(ResponseInterface $httpResponse, $expectedArrayContent)
-    {
-        $this->jsonDocument->setHttpResponse($httpResponse);
-        $this->assertEquals($expectedArrayContent, $this->jsonDocument->getContentArray());
-    }
-
-    /**
-     * @return array
-     */
-    public function getContentArrayDataProvider()
-    {
-        return [
-            'empty object' => [
-                'responseBody' => $this->createHttpResponse('{}'),
-                'expectedArrayContent' => [],
-            ],
-            'simple object' => [
-                'responseBody' => $this->createHttpResponse('{"foo": "bar"}'),
-                'expectedArrayContent' => [
-                    'foo' => 'bar',
-                ],
-            ],
-            'integer' => [
-                'responseBody' => $this->createHttpResponse('1'),
-                'expectedArrayContent' => 1
-            ],
-            'string' => [
-                'responseBody' => $this->createHttpResponse('"foo"'),
-                'expectedArrayContent' => 'foo'
-            ],
-            'null' => [
-                'responseBody' => $this->createHttpResponse('null'),
-                'expectedArrayContent' => null
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider getContentObjectDataProvider
-     *
-     * @param ResponseInterface $httpResponse
-     * @param array $expectedContentObject
-     */
-    public function testGetContentObject(ResponseInterface $httpResponse, $expectedContentObject)
-    {
-        $this->jsonDocument->setHttpResponse($httpResponse);
-        $this->assertEquals($expectedContentObject, $this->jsonDocument->getContentObject());
-    }
-
-    /**
-     * @return array
-     */
-    public function getContentObjectDataProvider()
-    {
-        return [
-            'empty object' => [
-                'responseBody' => $this->createHttpResponse('{}'),
-                'expectedContentObject' => (object) [],
-            ],
-            'simple object' => [
-                'responseBody' => $this->createHttpResponse('{"foo": "bar"}'),
-                'expectedContentObject' => (object) [
-                    'foo' => 'bar',
-                ],
-            ],
-            'integer' => [
-                'responseBody' => $this->createHttpResponse('1'),
-                'expectedContentObject' => 1
-            ],
-            'string' => [
-                'responseBody' => $this->createHttpResponse('"foo"'),
-                'expectedContentObject' => 'foo'
-            ],
-            'null' => [
-                'responseBody' => $this->createHttpResponse('null'),
-                'expectedContentObject' => null
-            ],
-        ];
-    }
-
-    public function testSetHttpResponseWithInvalidContentType()
-    {
-        $httpResponse = \Mockery::mock(ResponseInterface::class);
-        $httpResponse
-            ->shouldReceive('getHeader')
-            ->with('content-type')
-            ->andReturn('text/html');
-
-        $this->setExpectedException(Exception::class, 'HTTP response contains invalid content type', 2);
-
-        $this->jsonDocument->setHttpResponse($httpResponse);
-    }
-
-    /**
-     * @param string $body
-     *
-     * @return MockInterface|ResponseInterface
-     */
-    private function createHttpResponse($body = null)
-    {
-        $httpResponse = \Mockery::mock(ResponseInterface::class);
-        $httpResponse
-            ->shouldReceive('getHeader')
-            ->with('content-type')
-            ->andReturn('application/json');
-
-        if (!empty($body)) {
-            $httpResponse
-                ->shouldReceive('getBody')
-                ->andReturn($body);
+    public function testCreateInvalidContentType(
+        ResponseInterface $response,
+        $expectedExceptionMessage,
+        $expectedExceptionContentType
+    ) {
+        try {
+            new JsonDocument($response, 'http://example.com');
+            $this->fail(InvalidContentTypeException::class. 'not thrown');
+        } catch (InvalidContentTypeException $invalidContentTypeException) {
+            $this->assertEquals(InvalidContentTypeException::CODE, $invalidContentTypeException->getCode());
+            $this->assertEquals($expectedExceptionMessage, $invalidContentTypeException->getMessage());
+            $this->assertEquals($expectedExceptionContentType, (string)$invalidContentTypeException->getContentType());
         }
+    }
 
-        return $httpResponse;
+    /**
+     * @return array
+     */
+    public function createInvalidContentTypeDataProvider()
+    {
+        return [
+            'text/plain' => [
+                'response' => $this->createResponse('text/plain'),
+                'expectedExceptionMessage' => 'Invalid content type: "text/plain"',
+                'expectedExceptionContentType' => 'text/plain',
+            ],
+            'text/html' => [
+                'response' => $this->createResponse('text/html'),
+                'expectedExceptionMessage' => 'Invalid content type: "text/html"',
+                'expectedExceptionContentType' => 'text/html',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider createDataProvider
+     *
+     * @param ResponseInterface $response
+     * @param null|string|int|bool|array $expectedData
+     *
+     * @throws InvalidContentTypeException
+     */
+    public function testCreate(ResponseInterface $response, $expectedData)
+    {
+        $jsonDocument = new JsonDocument($response, 'http://example.com');
+
+        $this->assertEquals($expectedData, $jsonDocument->getData());
+    }
+
+    /**
+     * @return array
+     */
+    public function createDataProvider()
+    {
+        return [
+            'application/json, null data' => [
+                'response' => $this->createResponse('application/json', json_encode(null)),
+                'expectedData' => null,
+            ],
+            'application/json, integer data, 0' => [
+                'response' => $this->createResponse('application/json', json_encode(0)),
+                'expectedData' => 0,
+            ],
+            'application/json, integer data, 1' => [
+                'response' => $this->createResponse('application/json', json_encode(1)),
+                'expectedData' => 1,
+            ],
+            'application/json, float' => [
+                'response' => $this->createResponse('application/json', json_encode(pi())),
+                'expectedData' => pi(),
+            ],
+            'application/json, bool, true' => [
+                'response' => $this->createResponse('application/json', json_encode(true)),
+                'expectedData' => true,
+            ],
+            'application/json, bool, false' => [
+                'response' => $this->createResponse('application/json', json_encode(false)),
+                'expectedData' => false,
+            ],
+            'application/json, string, empty' => [
+                'response' => $this->createResponse('application/json', json_encode('')),
+                'expectedData' => '',
+            ],
+            'application/json, string, non-empty' => [
+                'response' => $this->createResponse('application/json', json_encode('foo')),
+                'expectedData' => 'foo',
+            ],
+            'application/json, object, empty' => [
+                'response' => $this->createResponse('application/json', json_encode((object)[])),
+                'expectedData' => [],
+            ],
+            'application/json, object, non-empty' => [
+                'response' => $this->createResponse('application/json', json_encode((object)[
+                    'foo' => 'bar',
+                ])),
+                'expectedData' => [
+                    'foo' => 'bar',
+                ],
+            ],
+            'application/json, array, empty' => [
+                'response' => $this->createResponse('application/json', json_encode([])),
+                'expectedData' => [],
+            ],
+            'application/json, array, non-empty' => [
+                'response' => $this->createResponse('application/json', json_encode([
+                    'foo' => 'bar',
+                ])),
+                'expectedData' => [
+                    'foo' => 'bar',
+                ],
+            ],
+            'application/ld+json, string, non-empty' => [
+                'response' => $this->createResponse('application/ld+json', json_encode('foo')),
+                'expectedData' => 'foo',
+            ],
+            'text/javascript, string, non-empty' => [
+                'response' => $this->createResponse('text/javascript', json_encode('foo')),
+                'expectedData' => 'foo',
+            ],
+        ];
+    }
+
+    /**
+     * @param string $contentType
+     *
+     * @return ResponseInterface|Mock
+     */
+    private function createResponse($contentType, $content = null)
+    {
+        /* @var ResponseInterface|Mock $response */
+        $response = \Mockery::mock(ResponseInterface::class);
+
+        $response
+            ->shouldReceive('getHeader')
+            ->once()
+            ->with(WebResource::HEADER_CONTENT_TYPE)
+            ->andReturn([
+                $contentType,
+            ]);
+
+        /* @var StreamInterface|Mock $streamInterface */
+        $streamInterface = \Mockery::mock(StreamInterface::class);
+        $streamInterface
+            ->shouldReceive('__toString')
+            ->andReturn($content);
+
+        $response
+            ->shouldReceive('getBody')
+            ->andReturn($streamInterface);
+
+        return $response;
     }
 }
