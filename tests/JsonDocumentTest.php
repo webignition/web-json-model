@@ -1,13 +1,12 @@
 <?php
 
-namespace webignition\Tests\WebResource\JsonDocument;
+namespace webignition\Tests\WebResource;
 
-use Mockery\Mock;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
-use webignition\WebResource\JsonDocument\InvalidContentTypeException;
-use webignition\WebResource\JsonDocument\JsonDocument;
-use webignition\WebResource\WebResource;
+use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
+use webignition\WebResource\Exception\InvalidContentTypeException;
+use webignition\WebResource\JsonDocument;
+use webignition\WebResource\TestingTools\ResponseFactory;
 
 class JsonDocumentTest extends \PHPUnit_Framework_TestCase
 {
@@ -17,6 +16,8 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
      * @param ResponseInterface $response
      * @param string $expectedExceptionMessage
      * @param string $expectedExceptionContentType
+     *
+     * @throws InternetMediaTypeParseException
      */
     public function testCreateInvalidContentType(
         ResponseInterface $response,
@@ -25,7 +26,7 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
     ) {
         try {
             new JsonDocument($response);
-            $this->fail(InvalidContentTypeException::class. 'not thrown');
+            $this->fail(InvalidContentTypeException::class . ' not thrown');
         } catch (InvalidContentTypeException $invalidContentTypeException) {
             $this->assertEquals(InvalidContentTypeException::CODE, $invalidContentTypeException->getCode());
             $this->assertEquals($expectedExceptionMessage, $invalidContentTypeException->getMessage());
@@ -40,13 +41,13 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
     {
         return [
             'text/plain' => [
-                'response' => $this->createResponse('text/plain'),
-                'expectedExceptionMessage' => 'Invalid content type: "text/plain"',
+                'response' => ResponseFactory::create('text/plain'),
+                'expectedExceptionMessage' => 'Invalid content type "text/plain"',
                 'expectedExceptionContentType' => 'text/plain',
             ],
             'text/html' => [
-                'response' => $this->createResponse('text/html'),
-                'expectedExceptionMessage' => 'Invalid content type: "text/html"',
+                'response' => ResponseFactory::create('text/html'),
+                'expectedExceptionMessage' => 'Invalid content type "text/html"',
                 'expectedExceptionContentType' => 'text/html',
             ],
         ];
@@ -59,6 +60,7 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
      * @param null|string|int|bool|array $expectedData
      *
      * @throws InvalidContentTypeException
+     * @throws InternetMediaTypeParseException
      */
     public function testCreate(ResponseInterface $response, $expectedData)
     {
@@ -74,43 +76,43 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
     {
         return [
             'application/json, null data' => [
-                'response' => $this->createResponse('application/json', json_encode(null)),
+                'response' => ResponseFactory::create('application/json', json_encode(null)),
                 'expectedData' => null,
             ],
             'application/json, integer data, 0' => [
-                'response' => $this->createResponse('application/json', json_encode(0)),
+                'response' => ResponseFactory::create('application/json', json_encode(0)),
                 'expectedData' => 0,
             ],
             'application/json, integer data, 1' => [
-                'response' => $this->createResponse('application/json', json_encode(1)),
+                'response' => ResponseFactory::create('application/json', json_encode(1)),
                 'expectedData' => 1,
             ],
             'application/json, float' => [
-                'response' => $this->createResponse('application/json', json_encode(pi())),
+                'response' => ResponseFactory::create('application/json', json_encode(pi())),
                 'expectedData' => pi(),
             ],
             'application/json, bool, true' => [
-                'response' => $this->createResponse('application/json', json_encode(true)),
+                'response' => ResponseFactory::create('application/json', json_encode(true)),
                 'expectedData' => true,
             ],
             'application/json, bool, false' => [
-                'response' => $this->createResponse('application/json', json_encode(false)),
+                'response' => ResponseFactory::create('application/json', json_encode(false)),
                 'expectedData' => false,
             ],
             'application/json, string, empty' => [
-                'response' => $this->createResponse('application/json', json_encode('')),
+                'response' => ResponseFactory::create('application/json', json_encode('')),
                 'expectedData' => '',
             ],
             'application/json, string, non-empty' => [
-                'response' => $this->createResponse('application/json', json_encode('foo')),
+                'response' => ResponseFactory::create('application/json', json_encode('foo')),
                 'expectedData' => 'foo',
             ],
             'application/json, object, empty' => [
-                'response' => $this->createResponse('application/json', json_encode((object)[])),
+                'response' => ResponseFactory::create('application/json', json_encode((object)[])),
                 'expectedData' => [],
             ],
             'application/json, object, non-empty' => [
-                'response' => $this->createResponse('application/json', json_encode((object)[
+                'response' => ResponseFactory::create('application/json', json_encode((object)[
                     'foo' => 'bar',
                 ])),
                 'expectedData' => [
@@ -118,11 +120,11 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
             'application/json, array, empty' => [
-                'response' => $this->createResponse('application/json', json_encode([])),
+                'response' => ResponseFactory::create('application/json', json_encode([])),
                 'expectedData' => [],
             ],
             'application/json, array, non-empty' => [
-                'response' => $this->createResponse('application/json', json_encode([
+                'response' => ResponseFactory::create('application/json', json_encode([
                     'foo' => 'bar',
                 ])),
                 'expectedData' => [
@@ -130,45 +132,13 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
             'application/ld+json, string, non-empty' => [
-                'response' => $this->createResponse('application/ld+json', json_encode('foo')),
+                'response' => ResponseFactory::create('application/ld+json', json_encode('foo')),
                 'expectedData' => 'foo',
             ],
             'text/javascript, string, non-empty' => [
-                'response' => $this->createResponse('text/javascript', json_encode('foo')),
+                'response' => ResponseFactory::create('text/javascript', json_encode('foo')),
                 'expectedData' => 'foo',
             ],
         ];
-    }
-
-    /**
-     * @param string $contentType
-     *
-     * @param string|null $content
-     * @return ResponseInterface|Mock
-     */
-    private function createResponse($contentType, $content = null)
-    {
-        /* @var ResponseInterface|Mock $response */
-        $response = \Mockery::mock(ResponseInterface::class);
-
-        $response
-            ->shouldReceive('getHeader')
-            ->once()
-            ->with(WebResource::HEADER_CONTENT_TYPE)
-            ->andReturn([
-                $contentType,
-            ]);
-
-        /* @var StreamInterface|Mock $streamInterface */
-        $streamInterface = \Mockery::mock(StreamInterface::class);
-        $streamInterface
-            ->shouldReceive('__toString')
-            ->andReturn($content);
-
-        $response
-            ->shouldReceive('getBody')
-            ->andReturn($streamInterface);
-
-        return $response;
     }
 }

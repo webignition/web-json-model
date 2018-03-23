@@ -1,11 +1,8 @@
 <?php
 
-namespace webignition\WebResource\JsonDocument;
+namespace webignition\WebResource;
 
-use Psr\Http\Message\ResponseInterface;
-use webignition\WebResource\WebResource;
-
-class JsonDocument extends WebResource
+class JsonDocument extends SpecificContentTypeWebResource
 {
     const APPLICATION_JSON_CONTENT_TYPE = 'application/json';
     const TEXT_JAVASCRIPT_CONTENT_TYPE = 'text/javascript';
@@ -13,33 +10,31 @@ class JsonDocument extends WebResource
     const TEXT_JSON_CONTENT_TYPE = 'text/json';
 
     /**
-     * @param ResponseInterface $response
-     * @param string|null $url
-     *
-     * @throws InvalidContentTypeException
-     */
-    public function __construct(ResponseInterface $response, $url = null)
-    {
-        parent::__construct($response, $url);
-
-        $contentType = $this->getContentType();
-        $contentTypeSubtypeString = $contentType->getTypeSubtypeString();
-
-        $hasApplicationJsonContentType = self::APPLICATION_JSON_CONTENT_TYPE === $contentTypeSubtypeString;
-        $hasTextJavascriptContentType = self::TEXT_JAVASCRIPT_CONTENT_TYPE === $contentTypeSubtypeString;
-
-        if (!$hasApplicationJsonContentType && !$hasTextJavascriptContentType) {
-            if (0 === preg_match(self::APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN, $contentTypeSubtypeString)) {
-                throw new InvalidContentTypeException($contentType);
-            }
-        }
-    }
-
-    /**
      * @return null|bool|string|int|array
      */
     public function getData()
     {
         return json_decode($this->getContent(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected static function getAllowedContentTypeStrings()
+    {
+        return [
+            self::APPLICATION_JSON_CONTENT_TYPE,
+            self::TEXT_JAVASCRIPT_CONTENT_TYPE,
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected static function getAllowedContentTypePatterns()
+    {
+        return [
+            self::APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN,
+        ];
     }
 }
