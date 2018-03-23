@@ -141,4 +141,16 @@ class JsonDocumentTest extends \PHPUnit_Framework_TestCase
             ],
         ];
     }
+
+    public function testGetModelledContentTypeStrings()
+    {
+        $this->assertEquals(
+            [
+                JsonDocument::APPLICATION_JSON_CONTENT_TYPE,
+                JsonDocument::TEXT_JAVASCRIPT_CONTENT_TYPE,
+                JsonDocument::APPLICATION_LD_PLUS_JSON_CONTENT_TYPE,
+            ],
+            JsonDocument::getModelledContentTypeStrings()
+        );
+    }
 }
