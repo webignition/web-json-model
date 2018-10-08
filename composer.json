@@ -13,12 +13,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "webignition\\WebResource\\": "src/"
+            "webignition\\WebResource\\JsonDocument\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "webignition\\Tests\\WebResource\\": "tests/"
+            "webignition\\WebResource\\JsonDocument\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -31,8 +31,10 @@
     },
     "require": {
         "php": ">=7.2.0",
-        "webignition/web-resource-interfaces":">=0.1,<1",
-        "webignition/web-resource-model":">=3.2.1,<4"
+        "webignition/web-resource-interfaces":">=3.2,<4",
+        "webignition/web-resource-model":">=4,<5",
+        "webignition/internet-media-type-interface":"^0.1",
+        "webignition/internet-media-type":"^1.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",

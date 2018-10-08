@@ -1,14 +1,16 @@
 <?php
 
-namespace webignition\WebResource;
+namespace webignition\WebResource\JsonDocument;
 
-class JsonDocument extends SpecificContentTypeWebResource
+use webignition\InternetMediaType\InternetMediaType;
+use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
+use webignition\WebResourceInterfaces\JsonDocumentInterface;
+use webignition\WebResource\WebResource;
+
+class JsonDocument extends WebResource implements JsonDocumentInterface
 {
-    const APPLICATION_JSON_CONTENT_TYPE = 'application/json';
-    const APPLICATION_LD_PLUS_JSON_CONTENT_TYPE = 'application/ld+json';
-    const TEXT_JAVASCRIPT_CONTENT_TYPE = 'text/javascript';
-    const APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN = '/application\/[a-z]+\+json/';
-    const TEXT_JSON_CONTENT_TYPE = 'text/json';
+    const DEFAULT_CONTENT_TYPE_TYPE = 'application';
+    const DEFAULT_CONTENT_TYPE_SUBTYPE = 'json';
 
     /**
      * @return null|bool|string|int|array
@@ -18,33 +20,36 @@ class JsonDocument extends SpecificContentTypeWebResource
         return json_decode($this->getContent(), true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypeStrings()
+    public static function getDefaultContentType(): InternetMediaType
     {
-        return self::getModelledContentTypeStrings();
+        $contentType = new InternetMediaType();
+        $contentType->setType(self::DEFAULT_CONTENT_TYPE_TYPE);
+        $contentType->setSubtype(self::DEFAULT_CONTENT_TYPE_SUBTYPE);
+
+        return $contentType;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected static function getAllowedContentTypePatterns()
+    public static function models(InternetMediaTypeInterface $internetMediaType): bool
     {
-        return [
-            self::APPLICATION_JSON_SUB_CONTENT_TYPE_PATTERN,
-        ];
+        $contentTypeSubtype = $internetMediaType->getTypeSubtypeString();
+
+        if (in_array($contentTypeSubtype, self::getModelledContentTypeStrings())) {
+            return true;
+        }
+
+        if (preg_match(ContentTypes::CONTENT_TYPE_APPLICATION_JSON_SUB_TYPE, $contentTypeSubtype)) {
+            return true;
+        }
+
+        return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getModelledContentTypeStrings()
+    public static function getModelledContentTypeStrings(): array
     {
         return [
-            self::APPLICATION_JSON_CONTENT_TYPE,
-            self::TEXT_JAVASCRIPT_CONTENT_TYPE,
-            self::APPLICATION_LD_PLUS_JSON_CONTENT_TYPE,
+            ContentTypes::CONTENT_TYPE_APPLICATION_JSON,
+            ContentTypes::CONTENT_TYPE_TEXT_JAVASCRIPT,
+            ContentTypes::CONTENT_TYPE_TEXT_JSON,
         ];
     }
 }
