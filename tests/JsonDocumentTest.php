@@ -8,7 +8,7 @@ use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\JsonDocument;
 use webignition\WebResource\TestingTools\ResponseFactory;
 
-class JsonDocumentTest extends \PHPUnit_Framework_TestCase
+class JsonDocumentTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider createInvalidContentTypeDataProvider
