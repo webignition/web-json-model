@@ -2,7 +2,6 @@
 
 namespace webignition\WebResource\JsonDocument\Tests;
 
-use Mockery\MockInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -10,22 +9,21 @@ use webignition\InternetMediaType\InternetMediaType;
 use webignition\InternetMediaTypeInterface\InternetMediaTypeInterface;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\JsonDocument\JsonDocument;
+use webignition\WebResource\WebResourceProperties;
 
 class JsonDocumentTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testCreateFromContentWithInvalidContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
-        $contentType = new InternetMediaType();
-        $contentType->setType('image');
-        $contentType->setSubtype('png');
-
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "image/png"');
 
-        JsonDocument::createFromContent($uri, 'content', $contentType);
+        new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT_TYPE => new InternetMediaType('image', 'png'),
+        ]));
     }
 
     /**
@@ -33,15 +31,20 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
      *
      * @param InternetMediaTypeInterface|null $contentType
      * @param string $expectedContentTypeString
+     *
+     * @throws InvalidContentTypeException
      */
     public function testCreateFromContent(?InternetMediaTypeInterface $contentType, string $expectedContentTypeString)
     {
-        /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
 
         $content = 'json document content';
 
-        $jsonDocument = JsonDocument::createFromContent($uri, $content, $contentType);
+        $jsonDocument = new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_URI => $uri,
+            WebResourceProperties::ARG_CONTENT_TYPE => $contentType,
+            WebResourceProperties::ARG_CONTENT => $content,
+        ]));
 
         $this->assertInstanceOf(JsonDocument::class, $jsonDocument);
         $this->assertEquals($uri, $jsonDocument->getUri());
@@ -58,30 +61,29 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
                 'expectedContentTypeString' => 'application/json',
             ],
             'application/json content type' => [
-                'contentType' => $this->createContentType('application', 'json'),
+                'contentType' => new InternetMediaType('application', 'json'),
                 'expectedContentTypeString' => 'application/json',
             ],
             'text/javascript content type' => [
-                'contentType' => $this->createContentType('text', 'javascript'),
+                'contentType' => new InternetMediaType('text', 'javascript'),
                 'expectedContentTypeString' => 'text/javascript',
             ],
             'text/json content type' => [
-                'contentType' => $this->createContentType('text', 'json'),
+                'contentType' => new InternetMediaType('text', 'json'),
                 'expectedContentTypeString' => 'text/json',
             ],
             'application/ld+json content type' => [
-                'contentType' => $this->createContentType('application', 'ld+json'),
+                'contentType' => new InternetMediaType('application', 'ld+json'),
                 'expectedContentTypeString' => 'application/ld+json',
             ],
         ];
     }
 
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testCreateFromResponseWithInvalidContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
-        /* @var ResponseInterface|MockInterface $response */
         $response = \Mockery::mock(ResponseInterface::class);
         $response
             ->shouldReceive('getHeaderLine')
@@ -91,7 +93,9 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "image/jpg"');
 
-        JsonDocument::createFromResponse($uri, $response);
+        new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]));
     }
 
     /**
@@ -99,21 +103,19 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
      *
      * @param string $responseContentTypeHeader
      * @param string $expectedContentTypeString
+     *
+     * @throws InvalidContentTypeException
      */
     public function testCreateFromResponse(string $responseContentTypeHeader, string $expectedContentTypeString)
     {
+        $uri = \Mockery::mock(UriInterface::class);
         $content = 'web page content';
 
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
-        /* @var StreamInterface|MockInterface $responseBody */
         $responseBody = \Mockery::mock(StreamInterface::class);
         $responseBody
             ->shouldReceive('__toString')
             ->andReturn($content);
 
-        /* @var ResponseInterface|MockInterface $response */
         $response = \Mockery::mock(ResponseInterface::class);
         $response
             ->shouldReceive('getHeaderLine')
@@ -124,7 +126,10 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
             ->shouldReceive('getBody')
             ->andReturn($responseBody);
 
-        $jsonDocument = JsonDocument::createFromResponse($uri, $response);
+        $jsonDocument = new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_URI => $uri,
+            WebResourceProperties::ARG_RESPONSE => $response,
+        ]));
 
         $this->assertInstanceOf(JsonDocument::class, $jsonDocument);
         $this->assertEquals($uri, $jsonDocument->getUri());
@@ -155,88 +160,36 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testSetUri()
-    {
-        /* @var UriInterface|MockInterface $currentUri */
-        $currentUri = \Mockery::mock(UriInterface::class);
-
-        /* @var UriInterface|MockInterface $newUri */
-        $newUri = \Mockery::mock(UriInterface::class);
-
-        $jsonDocument = JsonDocument::createFromContent($currentUri, '');
-
-        $this->assertEquals($currentUri, $jsonDocument->getUri());
-
-        $updatedWebPage = $jsonDocument->setUri($newUri);
-
-        $this->assertInstanceOf(JsonDocument::class, $updatedWebPage);
-        $this->assertEquals($newUri, $updatedWebPage->getUri());
-        $this->assertNotEquals(spl_object_hash($jsonDocument), spl_object_hash($updatedWebPage));
-    }
-
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetContentTypeInvalidContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
         $uri = \Mockery::mock(UriInterface::class);
 
-        $jsonDocument = JsonDocument::createFromContent($uri, 'web page content');
+        $jsonDocument = new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_URI => $uri,
+            WebResourceProperties::ARG_CONTENT => 'content',
+        ]));
 
         $this->assertEquals('application/json', (string)$jsonDocument->getContentType());
-
-        $contentType = $this->createContentType('application', 'octetstream');
 
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "application/octetstream"');
 
-        $jsonDocument->setContentType($contentType);
+        $jsonDocument->setContentType(new InternetMediaType('application', 'octetstream'));
     }
 
-    public function testSetContentTypeValidContentType()
-    {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
-        $jsonDocument = JsonDocument::createFromContent($uri, 'web page content');
-
-        $this->assertEquals('application/json', (string)$jsonDocument->getContentType());
-
-        $contentType = $this->createContentType('application', 'ld+json');
-
-        $updatedWebPage = $jsonDocument->setContentType($contentType);
-
-        $this->assertEquals('application/ld+json', (string)$updatedWebPage->getContentType());
-    }
-
-    public function testSetContent()
-    {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
-        $currentContent = 'current content';
-        $newContent = 'new content';
-
-        $jsonDocument = JsonDocument::createFromContent($uri, $currentContent);
-
-        $this->assertEquals($currentContent, $jsonDocument->getContent());
-
-        $updatedWebPage = $jsonDocument->setContent($newContent);
-
-        $this->assertInstanceOf(JsonDocument::class, $updatedWebPage);
-        $this->assertEquals($newContent, $updatedWebPage->getContent());
-        $this->assertNotEquals(spl_object_hash($jsonDocument), spl_object_hash($updatedWebPage));
-    }
-
+    /**
+     * @throws InvalidContentTypeException
+     */
     public function testSetResponseWithInvalidContentType()
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
         $responseBody = \Mockery::mock(StreamInterface::class);
         $responseBody
             ->shouldReceive('__toString')
             ->andReturn('');
 
-        /* @var ResponseInterface|MockInterface $currentResponse */
         $currentResponse = \Mockery::mock(ResponseInterface::class);
         $currentResponse
             ->shouldReceive('getHeaderLine')
@@ -247,14 +200,15 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
             ->shouldReceive('getBody')
             ->andReturn($responseBody);
 
-        /* @var ResponseInterface|MockInterface $newResponse */
         $newResponse = \Mockery::mock(ResponseInterface::class);
         $newResponse
             ->shouldReceive('getHeaderLine')
             ->with(JsonDocument::HEADER_CONTENT_TYPE)
             ->andReturn('image/jpg');
 
-        $jsonDocument = JsonDocument::createFromResponse($uri, $currentResponse);
+        $jsonDocument = new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_RESPONSE => $currentResponse,
+        ]));
 
         $this->expectException(InvalidContentTypeException::class);
         $this->expectExceptionMessage('Invalid content type "image/jpg"');
@@ -267,14 +221,15 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
      *
      * @param mixed $content
      * @param null|string|int|bool|array $expectedData
+     *
+     * @throws InvalidContentTypeException
      */
     public function testGetData($content, $expectedData)
     {
-        /* @var UriInterface|MockInterface $uri */
-        $uri = \Mockery::mock(UriInterface::class);
-
         /* @var JsonDocument $jsonDocument */
-        $jsonDocument = JsonDocument::createFromContent($uri, $content);
+        $jsonDocument = new JsonDocument(WebResourceProperties::create([
+            WebResourceProperties::ARG_CONTENT => $content,
+        ]));
 
         $this->assertEquals($expectedData, $jsonDocument->getData());
     }
@@ -342,14 +297,5 @@ class JsonDocumentTest extends \PHPUnit\Framework\TestCase
                 ],
             ],
         ];
-    }
-
-    private function createContentType(string $type, string $subtype): InternetMediaTypeInterface
-    {
-        $contentType = new InternetMediaType();
-        $contentType->setType($type);
-        $contentType->setSubtype($subtype);
-
-        return $contentType;
     }
 }

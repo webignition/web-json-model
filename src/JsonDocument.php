@@ -20,13 +20,9 @@ class JsonDocument extends WebResource implements JsonDocumentInterface
         return json_decode($this->getContent(), true);
     }
 
-    public static function getDefaultContentType(): InternetMediaType
+    public static function getDefaultContentType(): InternetMediaTypeInterface
     {
-        $contentType = new InternetMediaType();
-        $contentType->setType(self::DEFAULT_CONTENT_TYPE_TYPE);
-        $contentType->setSubtype(self::DEFAULT_CONTENT_TYPE_SUBTYPE);
-
-        return $contentType;
+        return new InternetMediaType(self::DEFAULT_CONTENT_TYPE_TYPE, self::DEFAULT_CONTENT_TYPE_SUBTYPE);
     }
 
     public static function models(InternetMediaTypeInterface $internetMediaType): bool

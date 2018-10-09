@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "58d9ca610884d46ea2b4e082e59e16e6",
+    "content-hash": "307b08cef09e8b093762ae33acf0ff40",
     "packages": [
         {
             "name": "psr/http-message",
@@ -99,27 +99,27 @@
         },
         {
             "name": "webignition/internet-media-type",
-            "version": "1.2",
+            "version": "2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/internet-media-type.git",
-                "reference": "464a7699fc1dca47d7b58573e605d0a247de7c5c"
+                "reference": "d9fa880260a9689477f132f9b2310233ecc9b30f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/internet-media-type/zipball/464a7699fc1dca47d7b58573e605d0a247de7c5c",
-                "reference": "464a7699fc1dca47d7b58573e605d0a247de7c5c",
+                "url": "https://api.github.com/repos/webignition/internet-media-type/zipball/d9fa880260a9689477f132f9b2310233ecc9b30f",
+                "reference": "d9fa880260a9689477f132f9b2310233ecc9b30f",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6.0",
-                "webignition/internet-media-type-interface": ">=0.1,<1.0",
+                "php": ">=7.2.0",
+                "webignition/internet-media-type-interface": ">=0.4,<1.0",
                 "webignition/quoted-string": ">=0.2.1,<1.0",
                 "webignition/string-parser": ">=0.2.3,<1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~5.0",
-                "squizlabs/php_codesniffer": "3.*"
+                "phpunit/phpunit": "^7",
+                "squizlabs/php_codesniffer": "^3"
             },
             "type": "library",
             "autoload": {
@@ -146,24 +146,24 @@
                 "media type",
                 "media-type"
             ],
-            "time": "2018-03-22T10:51:41+00:00"
+            "time": "2018-10-09T10:03:45+00:00"
         },
         {
             "name": "webignition/internet-media-type-interface",
-            "version": "0.1",
+            "version": "0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/internet-media-type-interface.git",
-                "reference": "db57dba3b4dacb78c24cb2a4a88768be47794726"
+                "reference": "dde668e8fa9e0c49b9925a4eeadfa0bc65b26747"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/internet-media-type-interface/zipball/db57dba3b4dacb78c24cb2a4a88768be47794726",
-                "reference": "db57dba3b4dacb78c24cb2a4a88768be47794726",
+                "url": "https://api.github.com/repos/webignition/internet-media-type-interface/zipball/dde668e8fa9e0c49b9925a4eeadfa0bc65b26747",
+                "reference": "dde668e8fa9e0c49b9925a4eeadfa0bc65b26747",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6.0"
+                "php": ">=7.2.0"
             },
             "type": "library",
             "autoload": {
@@ -190,7 +190,7 @@
                 "media type",
                 "media-type"
             ],
-            "time": "2018-03-21T10:55:33+00:00"
+            "time": "2018-10-09T09:16:21+00:00"
         },
         {
             "name": "webignition/quoted-string",
@@ -288,16 +288,16 @@
         },
         {
             "name": "webignition/web-resource-interfaces",
-            "version": "3.2",
+            "version": "3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-interfaces.git",
-                "reference": "e00e79c2e16ca826d3f6e0c080200cab158344ae"
+                "reference": "0c6a2cb21c094af9f2ff9566bb125bafd00f54aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/e00e79c2e16ca826d3f6e0c080200cab158344ae",
-                "reference": "e00e79c2e16ca826d3f6e0c080200cab158344ae",
+                "url": "https://api.github.com/repos/webignition/web-resource-interfaces/zipball/0c6a2cb21c094af9f2ff9566bb125bafd00f54aa",
+                "reference": "0c6a2cb21c094af9f2ff9566bb125bafd00f54aa",
                 "shasum": ""
             },
             "require": {
@@ -333,27 +333,27 @@
                 "psr-7",
                 "web-page"
             ],
-            "time": "2018-10-03T14:13:41+00:00"
+            "time": "2018-10-08T16:22:49+00:00"
         },
         {
             "name": "webignition/web-resource-model",
-            "version": "4.0",
+            "version": "5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/web-resource-model.git",
-                "reference": "e87e254010d316f4526e95498a0984c3533743ce"
+                "reference": "03ed03264ced87064833e2b3cf51dfa2afd45a56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/web-resource-model/zipball/e87e254010d316f4526e95498a0984c3533743ce",
-                "reference": "e87e254010d316f4526e95498a0984c3533743ce",
+                "url": "https://api.github.com/repos/webignition/web-resource-model/zipball/03ed03264ced87064833e2b3cf51dfa2afd45a56",
+                "reference": "03ed03264ced87064833e2b3cf51dfa2afd45a56",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2",
                 "psr/http-message": "^1",
-                "webignition/internet-media-type": "^1.2",
-                "webignition/internet-media-type-interface": "^0.1",
+                "webignition/internet-media-type": "^2",
+                "webignition/internet-media-type-interface": "^0.4",
                 "webignition/web-resource-interfaces": ">=3.2,<4"
             },
             "require-dev": {
@@ -385,7 +385,7 @@
                 "psr-7",
                 "web"
             ],
-            "time": "2018-10-04T12:16:05+00:00"
+            "time": "2018-10-09T10:34:51+00:00"
         }
     ],
     "packages-dev": [
